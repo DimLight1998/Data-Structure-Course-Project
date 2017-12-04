@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+    <Type Name="CharString">
+        <DisplayString>
+            {{ size = {_length}, {_data, [_length] } }}
+        </DisplayString>
+        <StringView>
+            _data, [_length]
+        </StringView>
+        <Expand>
+        </Expand>
+    </Type>
+
+    <Type Name="LinkedList&lt;*&gt;">
+        <DisplayString>
+            {{ size = {_length} }}
+        </DisplayString>
+        <Expand>
+            <LinkedListItems>
+                <Size>
+                    _length
+                </Size>
+                <HeadPointer>
+                    _headNode
+                </HeadPointer>
+                <NextPointer>
+                    Next
+                </NextPointer>
+                <ValueNode>
+                    Element
+                </ValueNode>
+            </LinkedListItems>
+        </Expand>
+    </Type>
+
+    <Type Name="Stack&lt;*&gt;">
+        <DisplayString>
+            {{ size = {_size} }}
+        </DisplayString>
+        <Expand>
+            <LinkedListItems>
+                <Size>
+                    _size
+                </Size>
+                <HeadPointer>
+                    _topNode
+                </HeadPointer>
+                <NextPointer>
+                    Next
+                </NextPointer>
+                <ValueNode>
+                    Element
+                </ValueNode>
+            </LinkedListItems>
+        </Expand>
+    </Type>
+
+    <Type Name="XmlNode">
+        <DisplayString>
+            {NameOrContent._data, [NameOrContent._length]}
+        </DisplayString>
+        <Expand>
+            <Item Name="Attributes">
+                Attributes
+            </Item>
+            <LinkedListItems>
+                <Size>
+                    Children._length
+                </Size>
+                <HeadPointer>
+                    Children._headNode
+                </HeadPointer>
+                <NextPointer>
+                    Next
+                </NextPointer>
+                <ValueNode>
+                    Element
+                </ValueNode>
+            </LinkedListItems>
+            <Item Name="IsComment">
+                IsCommentNode
+            </Item>
+            <Item Name="IsText">
+                IsTextNode
+            </Item>
+        </Expand>
+    </Type>
+
+</AutoVisualizer>
