@@ -212,13 +212,10 @@ namespace WordCloudSharp
         /// <summary>
         ///     Gets font colour or random if font wasn't set
         /// </summary>
-        private Color FontColor
-        {
-            get => _mFontColor ?? GetRandomColor();
-        }
+        private Color FontColor => _mFontColor ?? GetRandomColor();
 
 
-        private Color? _mFontColor;
+        private readonly Color? _mFontColor;
 
 
         /// <summary>

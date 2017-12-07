@@ -175,7 +175,7 @@ public:
         }
 
     private:
-        AvlTreeNode* _item;
+        AvlTreeNode* _item = nullptr;
 
         explicit ReadWriteIterator(AvlTreeNode* item) : _item(item)
         {

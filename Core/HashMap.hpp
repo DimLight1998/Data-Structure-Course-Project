@@ -37,6 +37,8 @@ public:
     void Remove(const TKey& key);
 
     virtual ~HashMap();
+
+    void Travelsal(const std::function<void(const TKey&, const TValue&)>& traversalFunction);
 private:
     class MapEntry
     {
@@ -53,6 +55,45 @@ private:
 
 
     LinkedList<MapEntry>* _hashTable = new LinkedList<MapEntry>[THashMax - THashMin];
+public:
+    class ReadWriteIterator
+    {
+        friend class HashMap;
+    public:
+        TValue& operator*()
+        {
+            return _item->Value;
+        }
+
+        TValue* operator->()
+        {
+            return &(_item->Value);
+        }
+
+        bool operator==(const ReadWriteIterator& rhs)
+        {
+            return _item == rhs._item;
+        }
+
+        bool operator!=(const ReadWriteIterator& rhs)
+        {
+            return _item != rhs._item;
+        }
+
+        explicit ReadWriteIterator(MapEntry* item) : _item(item)
+        {
+        }
+
+    private:
+        MapEntry* _item = nullptr;
+    };
+
+    ReadWriteIterator EmptyIterator()
+    {
+        return ReadWriteIterator(nullptr);
+    }
+
+    ReadWriteIterator Locate(const TKey& key);
 };
 
 
@@ -132,6 +173,44 @@ template <typename TKey, typename TValue, typename THash, int THashMin, int THas
 HashMap<TKey, TValue, THash, THashMin, THashMax>::~HashMap()
 {
     delete[] _hashTable;
+}
+
+template <typename TKey, typename TValue, typename THash, int THashMin, int THashMax>
+void HashMap<TKey, TValue, THash, THashMin, THashMax>::Travelsal(
+    const std::function<void(const TKey&, const TValue&)>& traversalFunction)
+{
+    auto itemTraversal = [&traversalFunction](const MapEntry& entry)->void
+    {
+        traversalFunction(entry.Key, entry.Value);
+    };
+
+    for(auto i = 0;i<THashMax-THashMin;i++)
+    {
+        _hashTable[i].Iterate(itemTraversal);
+    }
+}
+
+template <typename TKey, typename TValue, typename THash, int THashMin, int THashMax>
+typename HashMap<TKey, TValue, THash, THashMin, THashMax>::ReadWriteIterator
+HashMap<TKey, TValue, THash, THashMin, THashMax>::Locate(const TKey& key)
+{
+    auto hash = THash()(key);
+
+    try
+    {
+        const auto& result = _hashTable[hash].GetFirstOf(
+            [&key](const MapEntry& entry)-> bool
+            {
+                return entry.Key == key;
+            }
+        );
+
+        return ReadWriteIterator(const_cast<MapEntry*>(&result));
+    }
+    catch (std::logic_error)
+    {
+        return EmptyIterator();
+    }
 }
 
 

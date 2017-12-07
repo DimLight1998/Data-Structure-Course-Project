@@ -113,6 +113,7 @@ private:
 public:
     class Hasher
     {
+    public:
         int operator()(const CharString& charString) const
         {
             return charString.GetHashCode();

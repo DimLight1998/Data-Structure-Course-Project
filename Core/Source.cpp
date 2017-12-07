@@ -1,4 +1,7 @@
-﻿#include <iostream>
+﻿// Comment the next line to use hash map, otherwised Avl tree is used.
+//#define DATASTRUCTUREPROJECT_USE_AVL_II
+
+#include <iostream>
 #include <locale>
 #include <fstream>
 #include <iomanip>
@@ -7,11 +10,30 @@
 #include "Spider.hpp"
 #include "Dictionary.hpp"
 #include "Document.hpp"
+
+#ifdef DATASTRUCTUREPROJECT_USE_AVL_II
 #include "AvlTreeInvertedIndex.hpp"
+#else
+#include "HashMapInvertedIndex.hpp"
+#endif
+
 #include "CsvUtility.hpp"
 #include "GuiCore.hpp"
 
 using namespace std;
+
+class IntHasher
+{
+public:
+    int operator()(const int i) const
+    {
+        return i % (HashMax - HashMin);
+    }
+
+    static const int HashMax = 100000;
+    static const int HashMin = 0;
+};
+
 
 int main()
 {
@@ -45,12 +67,16 @@ int main()
     }
 
     // Download documents.
-    // todo free
+
+#ifdef DATASTRUCTUREPROJECT_USE_AVL_II
     AvlTree<int, Document*, less<int>> allDocuments;
-    const auto size = urls.size();
-
     AvlTreeInvertedIndex invertedIndex;
+#else
+    HashMap<int, Document*, IntHasher, IntHasher::HashMin, IntHasher::HashMax> allDocuments;
+    HashMapInvertedIndex invertedIndex;
+#endif
 
+    const auto size = urls.size();
 
 #pragma omp parallel for num_threads(16)
     for (auto i = 0; i < static_cast<int>(size); i++)
@@ -85,7 +111,12 @@ int main()
         }
 
         auto& wordList = document->Words;
+
+#ifdef DATASTRUCTUREPROJECT_USE_AVL_II
         AvlTree<CharString, int, less<CharString>> countedWords;
+#else
+        HashMap<CharString, int, CharString::Hasher, CharString::HashMin, CharString::HashMax> countedWords;
+#endif
 
         for (const auto& word : wordList)
         {
@@ -116,10 +147,15 @@ int main()
     {
         cout << "Performing query #" << queryCount;
 
-        CharString cs(finReader);
-        CharStringList slices = Split(cs,L' ');
+        const CharString cs(finReader);
+        const auto slices = Split(cs,L' ');
         auto result = invertedIndex.Query(slices);
+
+#ifdef DATASTRUCTUREPROJECT_USE_AVL_II
         result.InorderTraversal(
+#else
+        result.Travelsal(
+#endif
             [&fout](const int& id,const int& times)-> void
             {
                 fout << L'(' << id << L',' << times << L") ";
@@ -127,14 +163,19 @@ int main()
         );
 
         fout << endl;
+        queryCount++;
     }
 
-    function<void(const int&, Document* const &)> deleteFunction = [](const int& id, Document*const& document)->void
+    const function<void(const int&, Document* const &)> deleteFunction = [](const int& id, Document*const& document)->void
     {
         delete document;
     };
 
+#ifdef DATASTRUCTUREPROJECT_USE_AVL_II
     allDocuments.InorderTraversal(deleteFunction);
+#else
+    allDocuments.Travelsal(deleteFunction);
+#endif
 
     return 0;
 }
