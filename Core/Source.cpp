@@ -47,14 +47,13 @@ int main()
 {
     const locale loc("chs");
 
-    Dictionary dict;
+    auto dict = new Dictionary();
 
     cout << "Constructing dictionaries, please wait.\n";
-    dict.AddDictionary("./Professional.dic");
-    dict.AddDictionary("./Universal.dic");
+    dict->AddDictionary("./Professional.dic");
+    dict->AddDictionary("./Universal.dic");
 
     // No memory leak until here.
-    // todo delete `dict` later.
 
     wifstream fin;
     wofstream fout;
@@ -105,7 +104,7 @@ int main()
         try
         {
             document->AssignId(id);
-            document->UpdateFromUrl(url.ToStdWstring(), dict);
+            document->UpdateFromUrl(url.ToStdWstring(), *dict);
         }
         catch (const exception&)
         {
@@ -143,6 +142,9 @@ int main()
             }
         }
     }
+
+    delete dict;
+    dict = nullptr;
 
     // Now we have constructed the inverted index.
     // This is the console application. We need to load the queries and perform them.

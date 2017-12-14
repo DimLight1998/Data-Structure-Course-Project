@@ -30,13 +30,13 @@ public:
 
 inline void Document::UpdateFromUrl(const std::wstring& url, const Dictionary& dictionary)
 {
-    const auto htmlStd = Spider::GetHtmlByUrl(url);
-    const CharString html(htmlStd);
-
     XmlNode* xmlRoot = nullptr;
 
     try
     {
+        const auto htmlStd = Spider::GetHtmlByUrl(url);
+        const CharString html(htmlStd);
+
         xmlRoot = XmlParser::ParseXml(html);
 
         auto extracter = InformationExtracter(xmlRoot);

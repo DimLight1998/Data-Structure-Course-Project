@@ -13,8 +13,6 @@
 #include "AvlTreeInvertedIndex.hpp"
 #include "CsvUtility.hpp"
 
-// todo delete documents
-
 public ref class GuiCore
 {
 public:
@@ -136,6 +134,11 @@ inline void GuiCore::ProcessUrls()
         catch (const std::exception&)
         {
             delete document;
+#pragma omp critical
+            {
+                progressCount++;
+                ParsingProgressReport(static_cast<double>(progressCount) / static_cast<double>(size));
+            }
             continue;
         }
 

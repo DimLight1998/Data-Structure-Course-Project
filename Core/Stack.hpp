@@ -32,7 +32,7 @@ public:
     bool IsEmpty();
 
     bool Contains(const TElement& element);
-    bool Contains(const std::function<bool(const TElement& element)> prediction);
+    bool Contains(const std::function<bool(const TElement& element)>& prediction);
 
     virtual ~Stack();
 
@@ -132,7 +132,7 @@ inline bool Stack<TElement>::Contains(const TElement & element)
 }
 
 template<typename TElement>
-inline bool Stack<TElement>::Contains(const std::function<bool(const TElement&element)> prediction)
+inline bool Stack<TElement>::Contains(const std::function<bool(const TElement&element)>& prediction)
 {
     auto walker = _topNode;
     while (walker != nullptr)

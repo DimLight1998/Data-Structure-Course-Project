@@ -23,10 +23,6 @@ class AvlTreeInvertedIndex
 public:
     AvlTree<CharString, InvertedIndexNode, std::less<CharString>> Core;
 
-    /// \brief
-    /// \param word
-    /// \param document
-    /// \param times
     /// \note If the word is not indexed, it will be created automatically.
     void AddOccurrence(const CharString& word, Document* document, int times);
 
