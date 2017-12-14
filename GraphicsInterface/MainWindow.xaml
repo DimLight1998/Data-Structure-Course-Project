@@ -36,9 +36,10 @@
             Query result:
         </Label>
 
-        <ScrollViewer Grid.Row="3" Grid.Column="0" Margin="5" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="LightGray">
-            <TextBlock Name="ResultDisplay" Margin="5" IsEnabled="False" FontSize="15"
-                       Padding="5"/>
+        <ScrollViewer Grid.Row="3" Grid.Column="0" Margin="5" HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+            <TextBlock Name="ResultDisplay" FontSize="15" Padding="5" Background="LightGray" />
+
         </ScrollViewer>
 
         <StatusBar Grid.Row="4" Grid.Column="0">

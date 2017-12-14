@@ -102,7 +102,7 @@ void HashMap<TKey, TValue, THash, THashMin, THashMax>::Insert(const TKey& key, c
 {
     auto hash = THash()(key);
 
-    auto equal = [&key](const MapEntry& entry) -> bool
+    std::function<bool(const MapEntry&)> equal = [&key](const MapEntry& entry) -> bool
     {
         return entry.Key == key;
     };
@@ -124,7 +124,7 @@ bool HashMap<TKey, TValue, THash, THashMin, THashMax>::Contains(const TKey& key)
 {
     auto hash = THash()(key);
 
-    auto equal = [&key](const MapEntry& entry) -> bool
+    std::function<bool(const MapEntry&)> equal = [&key](const MapEntry& entry) -> bool
     {
         return entry.Key == key;
     };
@@ -198,12 +198,12 @@ HashMap<TKey, TValue, THash, THashMin, THashMax>::Locate(const TKey& key)
 
     try
     {
-        const auto& result = _hashTable[hash].GetFirstOf(
-            [&key](const MapEntry& entry)-> bool
-            {
-                return entry.Key == key;
-            }
-        );
+        std::function<bool(const MapEntry&)> equal = [&key](const MapEntry& entry)-> bool
+        {
+            return entry.Key == key;
+        };
+
+        const auto& result = _hashTable[hash].GetFirstOf(equal);
 
         return ReadWriteIterator(const_cast<MapEntry*>(&result));
     }

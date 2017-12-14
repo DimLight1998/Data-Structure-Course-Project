@@ -73,6 +73,13 @@ public:
     {
         if (rhs._head != nullptr)
         {
+            while (_head != nullptr)
+            {
+                auto next = _head->Next;
+                delete _head;
+                _head = next;
+            }
+
             _head = new LinkedListNode(rhs._head->Element);
         }
 

@@ -19,6 +19,8 @@ class Document
 public:
     int Id;
     CharStringList Words;
+    CharString PostTitle;
+    CharString PostContent;
 
     void UpdateFromUrl(const std::wstring& url, const Dictionary& dictionary);
     void AssignId(const int id);
@@ -31,20 +33,30 @@ inline void Document::UpdateFromUrl(const std::wstring& url, const Dictionary& d
     const auto htmlStd = Spider::GetHtmlByUrl(url);
     const CharString html(htmlStd);
 
-    const auto xmlRoot = XmlParser::ParseXml(html);
-    auto extracter = InformationExtracter(xmlRoot);
+    XmlNode* xmlRoot = nullptr;
 
-    auto content = extracter.GetPostContent();
-    content.Concat(extracter.GetPostTitle());
+    try
+    {
+        xmlRoot = XmlParser::ParseXml(html);
 
-//    // todo Remove log.
-//    std::wofstream flog;
-//    flog.imbue(std::locale("chs"));
-//    flog.open("cache.txt",std::ios::app);
-//    flog << content.ToStdWstring() << L"\n\n\n\n\n";
-//    flog.close();
+        auto extracter = InformationExtracter(xmlRoot);
 
-    Words = std::move(dictionary.WordSplit(content));
+        PostContent = extracter.GetPostContent();
+        PostTitle = extracter.GetPostTitle();
+
+        auto split = PostContent;
+        split.Concat(PostTitle);
+
+        Words = std::move(dictionary.WordSplit(split));
+        delete xmlRoot;
+    }
+    catch (const std::exception&)
+    {
+        // Some errors may occur in GetPostContent() or GetPostTitle().
+        // So xmlRoot won't be deleted due to try-catch blocks.
+        delete xmlRoot;
+        throw std::exception();
+    }
 }
 
 inline void Document::AssignId(const int id)

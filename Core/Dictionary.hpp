@@ -32,6 +32,8 @@ public:
     /// \return A list containing all the words in it.
     /// \note All the control characters, punctuations, letters and numbers are ignored.
     CharStringList WordSplit(const CharString& sentence) const;
+
+    virtual ~Dictionary();
 private:
     /// \brief Pointer to the hash table used for word looking up.
     CharStringList* _hashTable = nullptr;
@@ -126,6 +128,11 @@ inline CharStringList Dictionary::WordSplit(const CharString& sentence) const
     }
 
     return ret;
+}
+
+inline Dictionary::~Dictionary()
+{
+    delete[] _hashTable;
 }
 
 

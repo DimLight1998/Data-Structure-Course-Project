@@ -51,18 +51,18 @@ public:
     /// \brief Check if there are elements in the instance satisfying the prediction.
     /// \param prediction The prediction of the elements should satisfy.
     /// \return True if there are such elements in the instance.
-    bool ContainsIf(std::function<bool(const TElement&)> prediction);
+    bool ContainsIf(std::function<bool(const TElement&)>& prediction);
 
     /// \brief Get the first element satisfying the prediction.
     /// \param prediction The prediction of the element should satisfy.
     /// \return The first element satisfying the prediction.
     /// \throws <code>std::logic_error</code> if no such element is in the linked list.
-    const TElement& GetFirstOf(std::function<bool(const TElement&)> prediction);
+    const TElement& GetFirstOf(std::function<bool(const TElement&)>& prediction);
 
     /// \brief Remove the first element satisfying the prediction.
     /// \param prediction The prediction of the element should satisfy.
     /// \note Nothing will happen if there is no such element.
-    void RemoveFirstOf(std::function<bool(const TElement&)> prediction);
+    void RemoveFirstOf(std::function<bool(const TElement&)>& prediction);
 
     /// \brief Get the length of the list.
     /// \return The length of the list.
@@ -348,7 +348,7 @@ bool LinkedList<TElement>::Contains(const TElement& element) const
 
 
 template <typename TElement>
-bool LinkedList<TElement>::ContainsIf(std::function<bool(const TElement&)> prediction)
+bool LinkedList<TElement>::ContainsIf(std::function<bool(const TElement&)>& prediction)
 {
     auto found = false;
     auto walker = _headNode;
@@ -368,7 +368,7 @@ bool LinkedList<TElement>::ContainsIf(std::function<bool(const TElement&)> predi
 
 
 template <typename TElement>
-const TElement& LinkedList<TElement>::GetFirstOf(std::function<bool(const TElement&)> prediction)
+const TElement& LinkedList<TElement>::GetFirstOf(std::function<bool(const TElement&)>& prediction)
 {
     auto walker = _headNode;
     while (walker != nullptr)
@@ -377,6 +377,8 @@ const TElement& LinkedList<TElement>::GetFirstOf(std::function<bool(const TEleme
         {
             return walker->Element;
         }
+
+        walker = walker->Next;
     }
 
     throw std::logic_error("No such element in LinkedList::GetFirstOf");
@@ -384,7 +386,7 @@ const TElement& LinkedList<TElement>::GetFirstOf(std::function<bool(const TEleme
 
 
 template <typename TElement>
-void LinkedList<TElement>::RemoveFirstOf(std::function<bool(const TElement&)> prediction)
+void LinkedList<TElement>::RemoveFirstOf(std::function<bool(const TElement&)>& prediction)
 {
     if (_length == 0)
     {

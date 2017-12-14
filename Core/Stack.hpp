@@ -31,6 +31,9 @@ public:
     /// \return True if the stack is empty, otherwise false.
     bool IsEmpty();
 
+    bool Contains(const TElement& element);
+    bool Contains(const std::function<bool(const TElement& element)> prediction);
+
     virtual ~Stack();
 
 private:
@@ -107,6 +110,44 @@ template <typename TElement>
 bool Stack<TElement>::IsEmpty()
 {
     return _topNode == nullptr;
+}
+
+template<typename TElement>
+inline bool Stack<TElement>::Contains(const TElement & element)
+{
+    auto walker = _topNode;
+    while (walker != nullptr)
+    {
+        if (walker->Element == element)
+        {
+            return true;
+        }
+        else
+        {
+            walker = walker->Next;
+        }
+    }
+
+    return false;
+}
+
+template<typename TElement>
+inline bool Stack<TElement>::Contains(const std::function<bool(const TElement&element)> prediction)
+{
+    auto walker = _topNode;
+    while (walker != nullptr)
+    {
+        if (prediction(walker->Element))
+        {
+            return true;
+        }
+        else
+        {
+            walker = walker->Next;
+        }
+    }
+
+    return false;
 }
 
 

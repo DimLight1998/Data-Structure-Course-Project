@@ -13,7 +13,7 @@
 #include "AvlTreeInvertedIndex.hpp"
 #include "CsvUtility.hpp"
 
-using namespace System;
+// todo delete documents
 
 public ref class GuiCore
 {
@@ -26,7 +26,9 @@ public:
 public:
     void InitializeDictionary();
     void ProcessUrls();
-    Collections::Generic::Dictionary<int, int>^ Query(String^ query);
+    void DestroyDictionary();
+
+    System::Collections::Generic::Dictionary<int, int>^ Query(System::String^ query);
 
     GuiCore();
     ~GuiCore();
@@ -35,39 +37,61 @@ public:
     static void EmptyComplete() {}
     static void EmptyProgressReport(double) {}
 
+    System::String^ GetPostTitle(int documentId);
+    System::String^ GetPostContent(int documentId);
+
 private:
-    Dictionary* dictionary = nullptr;
-    AvlTreeInvertedIndex* invertedIndex = nullptr;
+    Dictionary* _dictionary = nullptr;
+    AvlTreeInvertedIndex* _invertedIndex = nullptr;
+
+    AvlTree<int, Document*, std::less<int>>* _allDocuments = nullptr;
 };
 
 GuiCore::GuiCore()
 {
-    dictionary = new Dictionary();
-    invertedIndex = new AvlTreeInvertedIndex();
+    _dictionary = new Dictionary();
+    _invertedIndex = new AvlTreeInvertedIndex();
+    _allDocuments = new AvlTree<int, Document*, std::less<int>>();
 }
 
 inline GuiCore::!GuiCore()
 {
-    delete dictionary;
-    dictionary = nullptr;
+    delete _dictionary;
+    _dictionary = nullptr;
 
-    delete invertedIndex;
-    invertedIndex = nullptr;
+    delete _invertedIndex;
+    _invertedIndex = nullptr;
+
+    delete _allDocuments;
+    _allDocuments = nullptr;
+}
+
+inline System::String ^ GuiCore::GetPostTitle(int documentId)
+{
+    return gcnew System::String(_allDocuments->Search(documentId)->PostTitle.ToStdWstring().c_str());   
+}
+
+inline System::String ^ GuiCore::GetPostContent(int documentId)
+{
+    return gcnew System::String(_allDocuments->Search(documentId)->PostContent.ToStdWstring().c_str());
 }
 
 inline GuiCore::~GuiCore()
 {
-    delete dictionary;
-    dictionary = nullptr;
+    delete _dictionary;
+    _dictionary = nullptr;
 
-    delete invertedIndex;
-    invertedIndex = nullptr;
+    delete _invertedIndex;
+    _invertedIndex = nullptr;
+
+    delete _allDocuments;
+    _allDocuments = nullptr;
 }
 
 inline void GuiCore::InitializeDictionary()
 {
-    dictionary->AddDictionary("./Professional.dic");
-    dictionary->AddDictionary("./Universal.dic");
+    _dictionary->AddDictionary("./Professional.dic");
+    _dictionary->AddDictionary("./Universal.dic");
     DictionaryLoadComplete();
 }
 
@@ -88,7 +112,6 @@ inline void GuiCore::ProcessUrls()
         urls.push_back(finReader);
     }
 
-    AvlTree<int, Document*, std::less<int>> allDocuments;
     const auto size = urls.size();
 
     auto progressCount = 0;
@@ -108,7 +131,7 @@ inline void GuiCore::ProcessUrls()
         try
         {
             document->AssignId(id);
-            document->UpdateFromUrl(url.ToStdWstring(), *dictionary);
+            document->UpdateFromUrl(url.ToStdWstring(), *_dictionary);
         }
         catch (const std::exception&)
         {
@@ -118,7 +141,7 @@ inline void GuiCore::ProcessUrls()
 
 #pragma omp critical
         {
-            allDocuments.Insert(document->Id, document);
+            _allDocuments->Insert(document->Id, document);
             progressCount++;
             ParsingProgressReport(static_cast<double>(progressCount) / static_cast<double>(size));
         }
@@ -134,25 +157,31 @@ inline void GuiCore::ProcessUrls()
                 const auto increase = document->CountWords(word);
 #pragma omp critical
                 {
-                    invertedIndex->AddOccurrence(word, document, increase);
+                    _invertedIndex->AddOccurrence(word, document, increase);
                 }
             }
         }
     }
 }
 
-inline Collections::Generic::Dictionary<int, int>^ GuiCore::Query(String ^ query)
+inline void GuiCore::DestroyDictionary()
 {
-    auto list = query->Split(gcnew array<wchar_t>{L' '}, StringSplitOptions::RemoveEmptyEntries);
+    delete _dictionary;
+    _dictionary = nullptr;
+}
+
+inline System::Collections::Generic::Dictionary<int, int>^ GuiCore::Query(System::String ^ query)
+{
+    auto list = query->Split(gcnew array<wchar_t>{L' '}, System::StringSplitOptions::RemoveEmptyEntries);
     std::vector<std::wstring> queries;
 
     for (auto i = 0; i < list->Length; i++)
     {
         auto queryWord = list[i];
-        using namespace Runtime::InteropServices;
+        using namespace System::Runtime::InteropServices;
         auto chars = (const wchar_t*)(Marshal::StringToHGlobalUni(queryWord)).ToPointer();
         queries.push_back(chars);
-        Marshal::FreeHGlobal(IntPtr((void*)chars));
+        Marshal::FreeHGlobal(System::IntPtr((void*)chars));
     }
 
     CharStringList charStringList;
@@ -162,8 +191,8 @@ inline Collections::Generic::Dictionary<int, int>^ GuiCore::Query(String ^ query
         charStringList.Append(charString);
     }
 
-    auto result = invertedIndex->Query(charStringList).ToSortedList();
-    auto ret = gcnew Collections::Generic::Dictionary<int, int>();
+    auto result = _invertedIndex->Query(charStringList);
+    auto ret = gcnew System::Collections::Generic::Dictionary<int, int>();
     for (const auto& i : result)
     {
         ret->Add(i.first, i.second);

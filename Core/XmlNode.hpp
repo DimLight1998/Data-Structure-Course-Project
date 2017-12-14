@@ -28,6 +28,14 @@ public:
 
     /// \brief Whether the node is a text.
     bool IsTextNode = false;
+
+    ~XmlNode()
+    {
+        for(auto i:Children)
+        {
+            delete i;
+        }
+    }
 };
 
 

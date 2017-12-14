@@ -41,6 +41,8 @@ public:
     /// \note If there isn't a record with the key in the dictionary, nothing will happen.
     void Remove(const TKey& key);
 
+    /// \brief Inorder travel the tree.
+    /// \param The function to perform on each node.
     void InorderTraversal(const std::function<void(const TKey&, const TValue&)>& traversalFunction);
 
     AvlTree() = default;
@@ -201,6 +203,8 @@ public:
         }
     };
 
+    /// \brief Convert the tree to a sorted list.
+    /// \return The sorted list converted from the tree.
     SortedList<std::pair<TKey, TValue>, PairLess> ToSortedList();
 };
 

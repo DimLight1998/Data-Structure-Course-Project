@@ -1,5 +1,13 @@
 ﻿// Comment the next line to use hash map, otherwised Avl tree is used.
-//#define DATASTRUCTUREPROJECT_USE_AVL_II
+#define DATASTRUCTUREPROJECT_USE_AVL_II
+
+//#define _CRTDBG_MAP_ALLOC
+//#include <stdlib.h>
+//#include <crtdbg.h>
+//#ifdef _DEBUG
+//#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
+//#define new DEBUG_NEW
+//#endif
 
 #include <iostream>
 #include <locale>
@@ -44,6 +52,9 @@ int main()
     cout << "Constructing dictionaries, please wait.\n";
     dict.AddDictionary("./Professional.dic");
     dict.AddDictionary("./Universal.dic");
+
+    // No memory leak until here.
+    // todo delete `dict` later.
 
     wifstream fin;
     wofstream fout;
@@ -99,6 +110,7 @@ int main()
         catch (const exception&)
         {
             wcout << L"Failed: " << url.ToStdWstring() << endl;
+            wcout.flush();
             delete document;
             continue;
         }
@@ -148,19 +160,23 @@ int main()
         cout << "Performing query #" << queryCount;
 
         const CharString cs(finReader);
-        const auto slices = Split(cs,L' ');
+        const auto slices = Split(cs, L' ');
         auto result = invertedIndex.Query(slices);
 
 #ifdef DATASTRUCTUREPROJECT_USE_AVL_II
-        result.InorderTraversal(
+        result.Iterate([&fout](const pair<int, int>& item)->void
+        {
+            fout << L'(' << item.first << L',' << item.second << L") ";
+        });
 #else
         result.Travelsal(
-#endif
-            [&fout](const int& id,const int& times)-> void
-            {
-                fout << L'(' << id << L',' << times << L") ";
-            }
+            [&fout](const int& id, const int& times)-> void
+        {
+            fout << L'(' << id << L',' << times << L") ";
+        }
         );
+#endif
+
 
         fout << endl;
         queryCount++;

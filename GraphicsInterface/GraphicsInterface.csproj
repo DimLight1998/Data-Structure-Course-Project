@@ -84,6 +84,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DetailWindow.xaml.cs">
+      <DependentUpon>DetailWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
@@ -119,6 +122,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="DetailWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

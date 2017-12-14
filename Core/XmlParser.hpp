@@ -17,6 +17,7 @@ public:
     /// \brief Analyze a xml/html to a xml tree.
     /// \param xml Content of the xml/html.
     /// \return The pseudo root of the xml tree.
+    /// \note You need to delete the returning value after using it.
     static XmlNode* ParseXml(const CharString& xml);
 
     /// \brief Test if a tag is an inline tag.
@@ -165,16 +166,28 @@ XmlNode* XmlParser::ParseXml(const CharString& xml)
                 reading++;
 
                 // Some of the tags are not closed!
-                auto top = stack.Top();
-                while (top->NameOrContent != closingTagName)
+                using XmlNodePointer = XmlNode * ;
+                if (stack.Contains([&closingTagName](const XmlNodePointer& xmlNode)-> bool
+                    {
+                        return
+                            xmlNode->IsTextNode == false &&
+                            xmlNode->IsCommentNode == false &&
+                            xmlNode->NameOrContent == closingTagName;
+                    })
+                )
                 {
+                    auto top = stack.Top();
+                    while (top->NameOrContent != closingTagName)
+                    {
+                        {
+                            stack.Pop();
+                            stack.Top()->Children.Append(top);
+                            top = stack.Top();
+                        }
+                    }
                     stack.Pop();
                     stack.Top()->Children.Append(top);
-                    top = stack.Top();
                 }
-
-                stack.Pop();
-                stack.Top()->Children.Append(top);
             }
             else // It should be an opening tag.
             {
@@ -351,8 +364,8 @@ CharString XmlParser::GetContent(XmlNode* xmlNode, const LinkedList<CharString>&
     CharString charString;
 
     using PointerToNode = XmlNode *;
-    std::function<void(const PointerToNode&)> visitingFunction = [&charString, &visitingFunction, &ignoringTags
-        ](const PointerToNode& node) -> void
+    std::function<void(const PointerToNode&)> visitingFunction =
+        [&charString, &visitingFunction, &ignoringTags](const PointerToNode& node) -> void
     {
         if (node->IsTextNode)
         {
