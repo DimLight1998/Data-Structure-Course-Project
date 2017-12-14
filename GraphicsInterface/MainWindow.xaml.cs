@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -74,40 +73,29 @@ namespace GraphicsInterface
             QueryButton.IsEnabled = false;
             ResultDisplay.Text = "";
 
-            var queryThread = new Thread(() =>
+            var queryResults = Core.Query(InputBox.Text);
+
+            foreach (var queryResult in queryResults)
             {
-                var queryResults = Core.Query(InputBox.Text);
+                var documentId = queryResult.Key;
+                var occurrence = queryResult.Value;
 
-                foreach (var queryResult in queryResults)
+                var button = new Button {Content = "Details..."};
+                button.Click += (o, args) =>
                 {
-                    var documentId = queryResult.Key;
-                    var occurrence = queryResult.Value;
+                    var detailsWindow = new DetailWindow(documentId, occurrence, this);
+                    detailsWindow.Show();
+                };
 
-                    var button = new Button { Content = "Details..." };
-                    button.Click += (o, args) =>
-                    {
-                        var detailsWindow = new DetailWindow(documentId, occurrence, this);
-                        detailsWindow.Show();
-                    };
+                ResultDisplay.Inlines.Add(button);
+                ResultDisplay.Inlines.Add(new LineBreak());
+                var stringList = InputBox.Text.Split(new[] {' '}, StringSplitOptions.RemoveEmptyEntries);
+                ResultDisplay.Inlines.Add(GetFormattedString(Core.GetPostTitle(documentId), stringList));
+                ResultDisplay.Inlines.Add(new LineBreak());
+                ResultDisplay.Inlines.Add(new LineBreak());
+            }
 
-                    ResultDisplay.Dispatcher.Invoke(() =>
-                    {
-                        ResultDisplay.Inlines.Add(button);
-                        ResultDisplay.Inlines.Add(new LineBreak());
-                        var stringList = InputBox.Text.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                        ResultDisplay.Inlines.Add(GetFormattedString(Core.GetPostTitle(documentId), stringList));
-                        ResultDisplay.Inlines.Add(new LineBreak());
-                        ResultDisplay.Inlines.Add(new LineBreak());
-                    });
-                }
-
-                QueryButton.Dispatcher.Invoke(() =>
-                {
-                    QueryButton.IsEnabled = true;
-                });
-            });
-
-            queryThread.Start();
+            QueryButton.IsEnabled = true;
         }
 
         public static Inline GetFormattedString(string targetString, string[] stringList)

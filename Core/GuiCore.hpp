@@ -113,7 +113,7 @@ inline void GuiCore::ProcessUrls()
     const auto size = urls.size();
 
     auto progressCount = 0;
-#pragma omp parallel for num_threads(16)
+#pragma omp parallel for num_threads(64)
     for (auto i = 0; i < static_cast<int>(size); i++)
     {
         // Parse this line.

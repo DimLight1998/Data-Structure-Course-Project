@@ -1,13 +1,5 @@
-﻿// Comment the next line to use hash map, otherwised Avl tree is used.
+﻿// Comment the next line to use hash map, otherwise Avl tree is used.
 #define DATASTRUCTUREPROJECT_USE_AVL_II
-
-//#define _CRTDBG_MAP_ALLOC
-//#include <stdlib.h>
-//#include <crtdbg.h>
-//#ifdef _DEBUG
-//#define DEBUG_NEW new(_NORMAL_BLOCK, __FILE__, __LINE__)
-//#define new DEBUG_NEW
-//#endif
 
 #include <iostream>
 #include <locale>
@@ -178,7 +170,6 @@ int main()
         }
         );
 #endif
-
 
         fout << endl;
         queryCount++;
